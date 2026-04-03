@@ -63,6 +63,41 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
+## Testing
+
+The project uses **Jest** with a minimum **90% coverage threshold** enforced across all `lib/` modules.
+
+```bash
+# Run all tests
+npm test
+
+# Watch mode (re-runs on file changes)
+npm run test:watch
+
+# Full coverage report (terminal + HTML in coverage/)
+npm run test:coverage
+```
+
+### Coverage
+
+| File | Statements | Branches | Functions | Lines |
+|---|---|---|---|---|
+| `audioEngine.ts` | 100% | 100% | 100% | 100% |
+| `bingSound.ts` | 100% | 100% | 100% | 100% |
+| `noteUtils.ts` | 100% | 100% | 100% | 100% |
+| `pitchDetector.ts` | ~97% | ~87% | 100% | 100% |
+| `tunings.ts` | 100% | 100% | 100% | 100% |
+
+### What's tested
+
+- **`noteUtils`** — MIDI ↔ frequency conversions, note names, octaves, cents calculation, in-tune detection
+- **`pitchDetector`** — silence/noise rejection, all 10 standard guitar and bass strings (via synthetic sine waves), edge cases and boundary branches
+- **`tunings`** — data integrity: string count, ordering, note names, octaves, frequency bounds
+- **`bingSound`** — oscillator lifecycle, gain envelopes, and harmonic frequencies via a full `AudioContext` mock
+- **`audioEngine`** — mic constraints, AudioContext wiring, `fftSize`/`smoothingTimeConstant` options, suspended context resume, and `dispose()` cleanup via browser API mocks
+
+---
+
 ## Deploying to Vercel
 
 The app is Vercel-ready out of the box. Just connect your GitHub repo to a Vercel project and it will deploy automatically on every push to `main`.
@@ -99,23 +134,29 @@ Microphone → AudioContext → AnalyserNode → Float32 Buffer
 
 ```
 guitartuner/
+├── __tests__/
+│   ├── audioEngine.test.ts     # Browser API mocks, setup & dispose
+│   ├── bingSound.test.ts       # AudioContext mock, oscillator lifecycle
+│   ├── noteUtils.test.ts       # Frequency/MIDI/cents math
+│   ├── pitchDetector.test.ts   # Sine wave fixtures, all strings
+│   └── tunings.test.ts         # Data integrity checks
 ├── app/
-│   ├── layout.tsx         # Root layout & fonts
-│   └── page.tsx           # Main page
+│   ├── layout.tsx              # Root layout & fonts
+│   └── page.tsx                # Main page
 ├── components/
-│   ├── Tuner.tsx          # Top-level tuner component
-│   ├── TunerMeter.tsx     # SVG needle gauge
-│   ├── NoteDisplay.tsx    # Current note & frequency display
+│   ├── Tuner.tsx               # Top-level tuner component
+│   ├── TunerMeter.tsx          # SVG needle gauge
+│   ├── NoteDisplay.tsx         # Current note & frequency display
 │   ├── InstrumentSelector.tsx  # Guitar / Bass toggle
 │   └── StringSelector.tsx      # String picker
 ├── hooks/
 │   └── usePitchDetection.ts    # Mic + audio processing hook
 └── lib/
-    ├── audioEngine.ts     # AudioContext & microphone setup
-    ├── pitchDetector.ts   # Autocorrelation pitch algorithm
-    ├── noteUtils.ts       # Frequency → note / cents math
-    ├── tunings.ts         # String frequency targets
-    └── bingSound.ts       # In-tune audio feedback
+    ├── audioEngine.ts          # AudioContext & microphone setup
+    ├── pitchDetector.ts        # Autocorrelation pitch algorithm
+    ├── noteUtils.ts            # Frequency → note / cents math
+    ├── tunings.ts              # String frequency targets
+    └── bingSound.ts            # In-tune audio feedback
 ```
 
 ---
