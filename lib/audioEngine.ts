@@ -41,8 +41,6 @@ export async function createAudioEngine(
             echoCancellation: false,
             autoGainControl: false,
             noiseSuppression: false,
-            // Some browsers honour this; helps for low-latency analysis
-            latency: 0,
         },
     });
 
