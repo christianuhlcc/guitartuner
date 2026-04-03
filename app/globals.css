@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --background: #090B0E;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    background-color: var(--background);
+    color: #E8EAF0;
+    /* Prevent rubber-band scroll on iOS for a more app-like feel */
+    overscroll-behavior: none;
+}
+
+/* Smooth needle transition is handled inline in TunerMeter, but this
+   ensures SVG transforms animate correctly in all browsers. */
+svg * {
+    transform-box: fill-box;
+}
