@@ -1,7 +1,7 @@
 'use client';
 
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
-import { StringDefinition } from '@/lib/tunings';
+import { StringDefinition, InstrumentType } from '@/lib/tunings';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -10,6 +10,7 @@ function cn(...inputs: ClassValue[]) {
 }
 
 interface StringSelectorProps {
+    instrument: InstrumentType;
     strings: StringDefinition[];
     selectedIndex: number;
     onSelect: (index: number) => void;
@@ -25,10 +26,14 @@ function subscript(n: number): string {
 }
 
 export default function StringSelector({
+    instrument,
     strings,
     selectedIndex,
     onSelect,
 }: StringSelectorProps) {
+    // 3 columns for guitar, 2 for bass (4 strings)
+    const isGuitar = instrument === 'guitar';
+
     return (
         <ToggleGroup.Root
             type="single"
@@ -36,7 +41,10 @@ export default function StringSelector({
             onValueChange={(value) => {
                 if (value !== '') onSelect(parseInt(value, 10));
             }}
-            className="flex flex-wrap items-center justify-center gap-3 p-2 bg-surface/30 backdrop-blur-md rounded-2xl border border-white/5 shadow-glass-md"
+            className={cn(
+                "grid w-full gap-3 p-4 bg-surface/30 backdrop-blur-md rounded-2xl border border-white/5 shadow-glass-md",
+                isGuitar ? "grid-cols-3" : "grid-cols-2"
+            )}
             aria-label="Select string/note"
         >
             {strings.map((s, i) => {
@@ -46,32 +54,32 @@ export default function StringSelector({
                         key={`${s.note}${s.octave}-${i}`}
                         value={String(i)}
                         className={cn(
-                            "group flex flex-col items-center justify-center min-w-[54px] min-h-[64px] p-2 rounded-xl border transition-all duration-300 outline-none",
+                            "group flex flex-col items-center justify-center h-16 rounded-xl border transition-all duration-300 outline-none",
                             isSelected
-                                ? "bg-accent/15 border-accent text-accent shadow-glow-accent ring-1 ring-accent/30"
+                                ? "bg-accent border-accent text-accent-foreground shadow-glow-accent ring-1 ring-accent scale-[1.05]"
                                 : "bg-surface-muted border-white/5 text-muted hover:border-white/20 hover:text-surface-foreground hover:bg-surface-active/30"
                         )}
                         aria-label={`${s.note}${s.octave} – ${s.frequency} Hz, string ${s.number}`}
                     >
                         <span className={cn(
                             "text-xl font-display leading-none tracking-tight transition-transform duration-300",
-                            isSelected ? "scale-110" : "group-hover:scale-105"
+                            isSelected ? "font-bold" : "group-hover:scale-105"
                         )}>
                             {s.note}
                         </span>
                         <span className={cn(
-                            "text-xs font-mono opacity-60 leading-none mt-0.5",
-                            isSelected ? "text-accent" : "text-muted"
+                            "text-[10px] font-mono leading-none mt-1 uppercase",
+                            isSelected ? "text-accent-foreground/50" : "text-muted"
                         )}>
-                            {subscript(s.octave)}
+                            {s.note}{subscript(s.octave)}
                         </span>
                         
-                        {/* String Number badge */}
+                        {/* Simple Number label instead of badge for cleaner grid */}
                         <div className={cn(
-                            "absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center transition-all",
-                            isSelected ? "bg-accent text-accent-foreground" : "bg-muted text-surface/80 opacity-0 group-hover:opacity-100"
+                            "absolute top-2 right-2 text-[8px] font-bold opacity-30",
+                            isSelected ? "text-accent-foreground" : "text-muted"
                         )}>
-                            {s.number}
+                            #{s.number}
                         </div>
                     </ToggleGroup.Item>
                 );

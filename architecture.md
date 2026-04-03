@@ -48,6 +48,10 @@ A mobile-first web application for tuning guitars and basses, built with Next.js
 ### Styling & UX
 - Modern, dynamic UI with dark mode, high contrast indicators (`#10B981` for in-tune, `#F43F5E` for sharp, `#3B82F6` for flat).
 - **Radix UI**: Uses `@radix-ui/react-toggle-group` for robust, accessible instrument and string selection.
+- **Responsive Layout**:
+    - **Guitar**: A clean **3-column grid** (3x2) for symmetrical string selection.
+    - **Bass**: A clean **2-column grid** (2x2) for large, easy-to-tap targets.
+    - Selectors are full-width (`w-full`) to maximize touch accuracy on mobile.
 - **Glassmorphism**: UI components use `backdrop-blur` and semi-transparent `surface` backgrounds (`#111520/40`) for a premium "app-like" feel.
 - **Micro-animations**: Dynamic entrance animations (`fade-in`, `slide-in`, `zoom-in`) and active-state scaling improve perceived performance and engagement.
 - **Typography**: Uses `Bebas Neue` for displays, `JetBrains Mono` for data, and `Barlow Condensed` for UI labels.

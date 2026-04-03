@@ -44,13 +44,14 @@ export default function Tuner() {
             </header>
 
             {/* Selectors Container */}
-            <div className="w-full max-w-md flex flex-col items-center gap-6 mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+            <div className="w-full max-w-sm flex flex-col items-center gap-6 mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
                 <InstrumentSelector
                     selected={instrument}
                     onChange={handleInstrumentChange}
                 />
                 
                 <StringSelector
+                    instrument={instrument}
                     strings={tuning.strings}
                     selectedIndex={stringIndex}
                     onSelect={setStringIndex}

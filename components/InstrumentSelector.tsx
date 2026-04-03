@@ -17,7 +17,7 @@ interface InstrumentSelectorProps {
 
 const INSTRUMENTS: { type: InstrumentType; icon: any }[] = [
     { type: 'guitar', icon: Guitar },
-    { type: 'bass', icon: Music }, // Bass often represented by general music icon or I can stick to labels
+    { type: 'bass', icon: Music },
 ];
 
 export default function InstrumentSelector({
@@ -31,7 +31,7 @@ export default function InstrumentSelector({
             onValueChange={(value) => {
                 if (value) onChange(value as InstrumentType);
             }}
-            className="inline-flex bg-surface-muted p-1 rounded-2xl shadow-glass-sm"
+            className="flex w-full bg-surface-muted p-1 rounded-2xl border border-white/5 shadow-glass-sm"
             aria-label="Select instrument"
         >
             {INSTRUMENTS.map(({ type, icon: Icon }) => {
@@ -41,14 +41,14 @@ export default function InstrumentSelector({
                         key={type}
                         value={type}
                         className={cn(
-                            "flex items-center gap-2 px-6 py-3 rounded-xl font-ui font-bold text-xs tracking-widest uppercase transition-all duration-300 outline-none",
+                            "flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-ui font-bold text-xs tracking-widest uppercase transition-all duration-300 outline-none",
                             "hover:bg-surface-active/50 focus-visible:ring-2 focus-visible:ring-accent",
                             isActive 
-                                ? "bg-surface-active text-surface-foreground shadow-glass-md ring-1 ring-white/10" 
+                                ? "bg-accent text-accent-foreground shadow-glow-accent ring-1 ring-accent" 
                                 : "text-muted hover:text-surface-foreground/80"
                         )}
                     >
-                        <Icon size={16} className={cn("transition-colors", isActive ? "text-accent" : "text-muted")} />
+                        <Icon size={16} className={cn("transition-colors", isActive ? "text-accent-foreground" : "text-muted")} />
                         {STANDARD_TUNINGS[type].label}
                     </ToggleGroup.Item>
                 );
