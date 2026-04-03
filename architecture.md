@@ -47,6 +47,7 @@ A mobile-first web application for tuning guitars and basses, built with Next.js
 
 ### Styling & UX
 - Modern, dynamic UI with dark mode, high contrast indicators (`#10B981` for in-tune, `#F43F5E` for sharp, `#3B82F6` for flat).
+- **Navy Blue Selection Language**: Active button states use a professional **Dark Blue/Navy** (`#1E3A8A`) to align with the visual language of the tuning gauge.
 - **Radix UI**: Uses `@radix-ui/react-toggle-group` for robust, accessible instrument and string selection.
 - **Responsive Layout**:
     - **Guitar**: A clean **3-column grid** (3x2) for symmetrical string selection.
@@ -55,7 +56,7 @@ A mobile-first web application for tuning guitars and basses, built with Next.js
 - **Glassmorphism**: UI components use `backdrop-blur` and semi-transparent `surface` backgrounds (`#111520/40`) for a premium "app-like" feel.
 - **Micro-animations**: Dynamic entrance animations (`fade-in`, `slide-in`, `zoom-in`) and active-state scaling improve perceived performance and engagement.
 - **Typography**: Uses `Bebas Neue` for displays, `JetBrains Mono` for data, and `Barlow Condensed` for UI labels.
-- **Feedback Loops**: Needle meter animations, color-shifting glows (`glow-accent`), and auditory rewards (`bingSound`) provide multi-modal user feedback.
+- **Feedback Loops**: Needle meter animations, color-shifting glows (`glow-blue` for selection, `glow-accent` for in-tune), and auditory rewards (`bingSound`) provide multi-modal user feedback.
 
 ## Testing Strategy
 

@@ -31,7 +31,6 @@ export default function StringSelector({
     selectedIndex,
     onSelect,
 }: StringSelectorProps) {
-    // 3 columns for guitar, 2 for bass (4 strings)
     const isGuitar = instrument === 'guitar';
 
     return (
@@ -56,28 +55,27 @@ export default function StringSelector({
                         className={cn(
                             "group flex flex-col items-center justify-center h-16 rounded-xl border transition-all duration-300 outline-none",
                             isSelected
-                                ? "bg-accent border-accent text-accent-foreground shadow-glow-accent ring-1 ring-accent scale-[1.05]"
+                                ? "bg-surface-selected border-white/20 text-white shadow-glow-blue scale-[1.05]"
                                 : "bg-surface-muted border-white/5 text-muted hover:border-white/20 hover:text-surface-foreground hover:bg-surface-active/30"
                         )}
                         aria-label={`${s.note}${s.octave} – ${s.frequency} Hz, string ${s.number}`}
                     >
                         <span className={cn(
                             "text-xl font-display leading-none tracking-tight transition-transform duration-300",
-                            isSelected ? "font-bold" : "group-hover:scale-105"
+                            isSelected ? "font-bold text-blue-100" : "group-hover:scale-105"
                         )}>
                             {s.note}
                         </span>
                         <span className={cn(
                             "text-[10px] font-mono leading-none mt-1 uppercase",
-                            isSelected ? "text-accent-foreground/50" : "text-muted"
+                            isSelected ? "text-blue-200/60" : "text-muted"
                         )}>
                             {s.note}{subscript(s.octave)}
                         </span>
                         
-                        {/* Simple Number label instead of badge for cleaner grid */}
                         <div className={cn(
                             "absolute top-2 right-2 text-[8px] font-bold opacity-30",
-                            isSelected ? "text-accent-foreground" : "text-muted"
+                            isSelected ? "text-blue-100" : "text-muted"
                         )}>
                             #{s.number}
                         </div>

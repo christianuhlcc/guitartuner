@@ -20,6 +20,7 @@ const config: Config = {
                     foreground: '#E8EAF0',
                     muted: '#1D2235',
                     active: '#2A2F45',
+                    selected: '#1E3A8A', // Rich Dark Blue/Navy
                 },
                 accent: {
                     DEFAULT: '#10B981', // Emerald
@@ -35,6 +36,7 @@ const config: Config = {
                 'glass-sm': '0 0 10px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05)',
                 'glass-md': '0 0 20px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08)',
                 'glow-accent': '0 0 15px rgba(16,185,129,0.2)',
+                'glow-blue': '0 0 15px rgba(30,58,138,0.4)',
             },
             animation: {
                 'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',

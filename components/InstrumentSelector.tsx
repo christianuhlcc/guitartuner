@@ -44,11 +44,11 @@ export default function InstrumentSelector({
                             "flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-ui font-bold text-xs tracking-widest uppercase transition-all duration-300 outline-none",
                             "hover:bg-surface-active/50 focus-visible:ring-2 focus-visible:ring-accent",
                             isActive 
-                                ? "bg-accent text-accent-foreground shadow-glow-accent ring-1 ring-accent" 
+                                ? "bg-surface-selected text-white shadow-glow-blue ring-1 ring-white/20 scale-[1.02]" 
                                 : "text-muted hover:text-surface-foreground/80"
                         )}
                     >
-                        <Icon size={16} className={cn("transition-colors", isActive ? "text-accent-foreground" : "text-muted")} />
+                        <Icon size={16} className={cn("transition-colors", isActive ? "text-blue-200" : "text-muted")} />
                         {STANDARD_TUNINGS[type].label}
                     </ToggleGroup.Item>
                 );
