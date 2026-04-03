@@ -1,18 +1,13 @@
-# 🎸 Guitar Tuner
-
-A free, browser-based chromatic tuner for **guitar and bass** — no app install required. Just open it, give your browser mic access, and start tuning.
-
-Built with Next.js and the Web Audio API, it works on any modern browser including mobile.
+Built with Next.js, the Web Audio API, **Radix UI**, and **Lucide Icons** — it works beautifully on any modern browser including mobile.
 
 ---
 
-## What It Does
-
 - 🎵 **Real-time pitch detection** — listens to your instrument through the microphone and instantly shows you how close you are to pitch
-- 🎸 **Guitar & bass modes** — switch between standard guitar (EADGBE) and bass (EADG) tunings
-- 📊 **Visual needle meter** — a smooth SVG gauge shows you whether you're flat, sharp, or bang on
+- 🎸 **Guitar & bass modes** — switch between standard guitar (EADGBE) and bass (EADG) tunings using polished Radix UI ToggleGroup selectors
+- 📊 **Visual needle meter** — a smooth SVG gauge with dynamic entrance animations and "in-tune" glow effects
 - 🔔 **In-tune sound cue** — plays a soft "bing" when a string holds stable at the target pitch
-- 📱 **Mobile-first design** — works great on phones as well as desktop
+- 📱 **Mobile-first design** — features large touch targets (48px+) and glassmorphism styling for a premium feel
+- ✨ **Rich Aesthetics** — built-in support for dark mode, backdrop blurs, and smooth CSS transitions
 
 ---
 

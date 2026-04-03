@@ -23,8 +23,8 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
-    title: 'Chromatic Tuner',
-    description: 'Mobile guitar and bass tuner using your microphone',
+    title: 'Chromatic Tuner | Precision Guitar & Bass',
+    description: 'A professional-grade, mobile-friendly tuner in your browser. Features sub-cent pitch detection and standard tunings.',
     manifest: '/manifest.json',
     appleWebApp: {
         capable: true,
@@ -48,10 +48,10 @@ export default function RootLayout({
 }) {
     return (
         <html
-            lang="de"
+            lang="en"
             className={`${bebasNeue.variable} ${jetbrainsMono.variable} ${barlowCondensed.variable}`}
         >
-            <body>{children}</body>
+            <body className="antialiased selection:bg-emerald-500/30">{children}</body>
         </html>
     );
 }

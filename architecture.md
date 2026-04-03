@@ -5,7 +5,7 @@ A mobile-first web application for tuning guitars and basses, built with Next.js
 
 ## Technology Stack
 - **Framework**: Next.js (App Router)
-- **Styling**: Tailwind CSS with custom font tokens (`ui`, `display`, `mono`)
+- **Styling**: Tailwind CSS + **Radix UI Primitives** + **Lucide React Icons**
 - **Audio Processing**: Web Audio API (`getUserMedia`, `AnalyserNode`)
 - **Testing**: Jest + ts-node, with 90% coverage threshold enforced on `lib/`
 - **Deployment**: Vercel ready
@@ -46,9 +46,12 @@ A mobile-first web application for tuning guitars and basses, built with Next.js
 6. Resulting frequency is processed in `frequencyToCents` to calculate the tuning offset in cents against the selected target string target.
 
 ### Styling & UX
-- Modern, dynamic UI with dark mode, high contrast indicators (`#10B981` for in-tune, `#EF4444` for red/sharp/flat).
-- Uses `Bebas Neue` for large displays, `JetBrains Mono` for precise numbers, and `Barlow Condensed` for UI.
-- Feedback loops: needle animations, color shifts, and an auditory reward (`bingSound`) when tuning successfully matches target frequency and stabilizes.
+- Modern, dynamic UI with dark mode, high contrast indicators (`#10B981` for in-tune, `#F43F5E` for sharp, `#3B82F6` for flat).
+- **Radix UI**: Uses `@radix-ui/react-toggle-group` for robust, accessible instrument and string selection.
+- **Glassmorphism**: UI components use `backdrop-blur` and semi-transparent `surface` backgrounds (`#111520/40`) for a premium "app-like" feel.
+- **Micro-animations**: Dynamic entrance animations (`fade-in`, `slide-in`, `zoom-in`) and active-state scaling improve perceived performance and engagement.
+- **Typography**: Uses `Bebas Neue` for displays, `JetBrains Mono` for data, and `Barlow Condensed` for UI labels.
+- **Feedback Loops**: Needle meter animations, color-shifting glows (`glow-accent`), and auditory rewards (`bingSound`) provide multi-modal user feedback.
 
 ## Testing Strategy
 

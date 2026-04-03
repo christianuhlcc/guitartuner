@@ -2,25 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-    --background: #090B0E;
-}
+@layer base {
+  :root {
+    --background: 240 25% 4%;
+    --foreground: 210 20% 98%;
+    --surface: 228 30% 10%;
+    --surface-muted: 228 30% 16%;
+    --surface-active: 228 25% 22%;
+    --accent: 160 84% 39%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 215 15% 65%;
+  }
 
-* {
-    box-sizing: border-box;
+  * {
+    @apply box-border;
     -webkit-tap-highlight-color: transparent;
-}
+  }
 
-html,
-body {
-    background-color: var(--background);
-    color: #E8EAF0;
+  html,
+  body {
+    @apply bg-background text-surface-foreground antialiased selection:bg-accent/20;
     /* Prevent rubber-band scroll on iOS for a more app-like feel */
     overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
-/* Smooth needle transition is handled inline in TunerMeter, but this
-   ensures SVG transforms animate correctly in all browsers. */
+@layer utilities {
+  .glass {
+    @apply bg-surface/40 backdrop-blur-xl border border-white/5 shadow-glass-md;
+  }
+  
+  .glass-sm {
+    @apply bg-surface/30 backdrop-blur-lg border border-white/5 shadow-glass-sm;
+  }
+}
+
+/* Ensure SVG transforms animate correctly in all browsers */
 svg * {
-    transform-box: fill-box;
+  transform-box: fill-box;
+}
+
+/* Custom scrollbar for a premium look (if needed) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
 }
