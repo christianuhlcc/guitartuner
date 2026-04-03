@@ -8,7 +8,7 @@ const customConfig: Config = {
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/$1',
     },
-    testPathPattern: '__tests__/.*\\.test\\.ts$',
+    testMatch: ['**/__tests__/**/*.test.ts'],
 };
 
 export default createJestConfig(customConfig);
