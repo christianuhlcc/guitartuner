@@ -17,7 +17,7 @@ const customConfig: Config = {
         '!lib/**/*.d.ts',
         '!hooks/**/*.d.ts',
     ],
-    coverageReporters: ['text', 'lcov', 'html'],
+    coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
     coverageThreshold: {
         global: {
             statements: 90,

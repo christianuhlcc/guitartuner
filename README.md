@@ -1,3 +1,7 @@
+# Chromatic Tuner
+
+![Coverage](./badges/coverage.svg)
+
 Built with Next.js, the Web Audio API, **Radix UI**, and **Lucide Icons** — it works beautifully on any modern browser including mobile.
 
 ---
@@ -72,16 +76,6 @@ npm run test:watch
 # Full coverage report (terminal + HTML in coverage/)
 npm run test:coverage
 ```
-
-### Coverage
-
-| File | Statements | Branches | Functions | Lines |
-|---|---|---|---|---|
-| `audioEngine.ts` | 100% | 100% | 100% | 100% |
-| `bingSound.ts` | 100% | 100% | 100% | 100% |
-| `noteUtils.ts` | 100% | 100% | 100% | 100% |
-| `pitchDetector.ts` | ~97% | ~87% | 100% | 100% |
-| `tunings.ts` | 100% | 100% | 100% | 100% |
 
 ### What's tested
 
