@@ -13,7 +13,9 @@ const customConfig: Config = {
     // ── Coverage ──────────────────────────────────────────────────────────────
     collectCoverageFrom: [
         'lib/**/*.ts',
+        'hooks/**/*.ts',
         '!lib/**/*.d.ts',
+        '!hooks/**/*.d.ts',
     ],
     coverageReporters: ['text', 'lcov', 'html'],
     coverageThreshold: {
