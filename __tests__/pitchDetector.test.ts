@@ -18,6 +18,22 @@ function silenceBuffer(numSamples: number): Float32Array {
     return new Float32Array(numSamples);
 }
 
+/** 
+ * Generate a decaying wave that artificially causes normalization to inflate 
+ * the subharmonic peak in naive autocorrelation. 
+ * High guitar strings act like this because of fast transients.
+ */
+function decayingWave(frequency: number, numSamples: number): Float32Array {
+    const buffer = new Float32Array(numSamples);
+    for (let i = 0; i < numSamples; i++) {
+        const envelope = Math.exp(-i / (numSamples / 3)); // dramatic exponential decay
+        const fundamental = Math.sin((2 * Math.PI * frequency * i) / SAMPLE_RATE);
+        const secondHarmonic = 0.5 * Math.sin((2 * Math.PI * (frequency * 2) * i) / SAMPLE_RATE);
+        buffer[i] = envelope * (fundamental + secondHarmonic);
+    }
+    return buffer;
+}
+
 /** Buffer filled with very low-level noise (below RMS threshold). */
 function subThresholdBuffer(numSamples: number): Float32Array {
     // Use a seeded-ish deterministic approach to avoid flakiness
@@ -81,7 +97,24 @@ describe('detectPitch – bass strings', () => {
     });
 });
 
-// ─── Edge cases ───────────────────────────────────────────────────────────────
+// ─── Edge cases & Real-World Simulation ───────────────────────────────────────
+
+describe('detectPitch – octave octave-trap rejection', () => {
+    it('successfully locks onto the fundamental of a high E string with fast decay', () => {
+        // High E (329.63 Hz) decays fast. A naive global maximum search often yields 164.8 Hz (E3)
+        const targetHz = 329.63;
+        const buf = decayingWave(targetHz, 8192);
+        
+        // Use guitar standard bounds: 70 to 360
+        const detected = detectPitch(buf, SAMPLE_RATE, 70, 360);
+        
+        expect(detected).not.toBeNull();
+        // Should securely lock onto 329Hz, rather than falling an octave down to ~164Hz
+        expect(Math.abs(detected! - targetHz)).toBeLessThan(5);
+    });
+});
+
+// ─── Math boundaries ──────────────────────────────────────────────────────────
 
 describe('detectPitch – edge cases', () => {
     it('returns null when minFrequency >= maxFrequency (impossible lag range)', () => {
