@@ -2,6 +2,8 @@
 
 ![Coverage](./badges/coverage.svg)
 
+Visit [https://guitartuner.vercel.app/](https://guitartuner.vercel.app/)
+
 Built with Next.js, the Web Audio API, **Radix UI**, and **Lucide Icons** — it works beautifully on any modern browser including mobile.
 
 ---
