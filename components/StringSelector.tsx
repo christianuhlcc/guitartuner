@@ -47,35 +47,34 @@ export default function StringSelector({
             aria-label="Select string/note"
         >
             {strings.map((s, i) => {
-                const isSelected = i === selectedIndex;
                 return (
                     <ToggleGroup.Item
                         key={`${s.note}${s.octave}-${i}`}
                         value={String(i)}
                         className={cn(
                             "group flex flex-col items-center justify-center h-16 rounded-xl border transition-all duration-300 outline-none",
-                            isSelected
-                                ? "bg-surface-selected border-white/20 text-white shadow-glow-blue scale-[1.05]"
-                                : "bg-surface-muted border-white/5 text-muted hover:border-white/20 hover:text-surface-foreground hover:bg-surface-active/30"
+                            "bg-surface-muted border-white/5 text-muted hover:border-white/20 hover:text-surface-foreground hover:bg-surface-active/30",
+                            "data-[state=on]:bg-[#1e3a8a] data-[state=on]:border-white/20 data-[state=on]:text-white data-[state=on]:shadow-glow-blue data-[state=on]:scale-[1.05]"
                         )}
                         aria-label={`${s.note}${s.octave} – ${s.frequency} Hz, string ${s.number}`}
+                        data-testid={`string-${i}`}
                     >
                         <span className={cn(
                             "text-xl font-display leading-none tracking-tight transition-transform duration-300",
-                            isSelected ? "font-bold text-blue-100" : "group-hover:scale-105"
+                            "group-hover:scale-105 group-data-[state=on]:font-bold group-data-[state=on]:text-blue-100 group-data-[state=on]:scale-100"
                         )}>
                             {s.note}
                         </span>
                         <span className={cn(
-                            "text-[10px] font-mono leading-none mt-1 uppercase",
-                            isSelected ? "text-blue-200/60" : "text-muted"
+                            "text-[10px] font-mono leading-none mt-1 uppercase text-muted",
+                            "group-data-[state=on]:text-blue-200/60"
                         )}>
                             {s.note}{subscript(s.octave)}
                         </span>
                         
                         <div className={cn(
-                            "absolute top-2 right-2 text-[8px] font-bold opacity-30",
-                            isSelected ? "text-blue-100" : "text-muted"
+                            "absolute top-2 right-2 text-[8px] font-bold opacity-30 text-muted",
+                            "group-data-[state=on]:text-blue-100"
                         )}>
                             #{s.number}
                         </div>
