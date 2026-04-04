@@ -17,6 +17,8 @@ A mobile-first web application for tuning guitars and basses, built with Next.js
   - `tunings.test.ts`: Data integrity checks — string count, ordering, note names, octaves, and frequency bounds.
   - `bingSound.test.ts`: Oscillator lifecycle and gain envelope — validated via a hand-rolled `AudioContext` mock.
   - `audioEngine.test.ts`: Full setup and dispose lifecycle — mocks `navigator.mediaDevices` and `AudioContext` to test without real browser APIs.
+  - `usePitchDetection.test.tsx`: Validates mic state transitions and frame-by-frame pitch smoothing using fake timers, including silence and octave traps.
+  - `components.test.tsx`: Integration tests via React Testing Library for Radix UI selectors, verifying active state visual data properties.
 - `app/`
   - `layout.tsx`: Root layout, injecting global fonts and managing root metadata.
   - `page.tsx`: Main page rendering the Tuner application.
@@ -31,7 +33,7 @@ A mobile-first web application for tuning guitars and basses, built with Next.js
   - `usePitchDetection.ts`: The core React hook that manages microphone permissions, starts the `AudioEngine`, reads `floatTimeDomainData` frames, runs it through the pitch detector, and maps it to target cents based on currently selected note.
 - `lib/`
   - `audioEngine.ts`: Sets up `AudioContext`, `AnalyserNode`, and microphone streams.
-  - `pitchDetector.ts`: Provides `detectPitch` – a vanilla JS autocorrelation algorithm for efficient frequency detection on short buffers.
+  - `pitchDetector.ts`: Provides `detectPitch` – an autocorrelation algorithm combined with McLeod Pitch Method (MPM) peak-picking and parabolic interpolation to avoid subharmonic octave errors on transient high-frequency signals.
   - `bingSound.ts`: Generates a synthetic audio feedback "bing" when a note is stable and "in-tune".
   - `noteUtils.ts`: Math utilities for mapping frequency to MIDI numbers, notes, and calculating cents deviation.
   - `tunings.ts`: Data definitions of standard tunings (e.g., EADGBE and EADG) and frequency targets.
@@ -62,8 +64,9 @@ A mobile-first web application for tuning guitars and basses, built with Next.js
 
 ### Tooling
 - **Jest** with `ts-node` for TypeScript config support
+- **React Testing Library** for integration tests over UI components and React Hooks
 - **`jest-environment-jsdom`** for DOM-dependent tests; `node` environment for pure logic
-- **Coverage** collected from `lib/**/*.ts`, with 90% minimum thresholds on statements, branches, functions, and lines enforced in CI via `coverageThreshold`
+- **Coverage** collected from `lib/**/*.ts` and `hooks/**/*.ts`, with 90% minimum thresholds on statements, branches, functions, and lines enforced via `coverageThreshold`
 - HTML + LCOV reports generated in `coverage/` on every `npm run test:coverage` run
 
 ### Philosophy

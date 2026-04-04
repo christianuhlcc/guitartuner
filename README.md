@@ -60,7 +60,7 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Testing
 
-The project uses **Jest** with a minimum **90% coverage threshold** enforced across all `lib/` modules.
+The project uses **Jest** and **React Testing Library** with a minimum **90% coverage threshold** enforced across all `lib/` and `hooks/` modules.
 
 ```bash
 # Run all tests
@@ -86,7 +86,9 @@ npm run test:coverage
 ### What's tested
 
 - **`noteUtils`** — MIDI ↔ frequency conversions, note names, octaves, cents calculation, in-tune detection
-- **`pitchDetector`** — silence/noise rejection, all 10 standard guitar and bass strings (via synthetic sine waves), edge cases and boundary branches
+- **`pitchDetector`** — silence/noise rejection, all 10 standard strings, MPM octave-trap rejection simulations, edge cases and boundary branches
+- **`usePitchDetection`** — React hook lifecycle, state transitions, smoothed frame updates, and microphone error handling
+- **`UI Components`** — Integration tests for Radix UI selectors, verifying rigorous `data-[state=on]` style states
 - **`tunings`** — data integrity: string count, ordering, note names, octaves, frequency bounds
 - **`bingSound`** — oscillator lifecycle, gain envelopes, and harmonic frequencies via a full `AudioContext` mock
 - **`audioEngine`** — mic constraints, AudioContext wiring, `fftSize`/`smoothingTimeConstant` options, suspended context resume, and `dispose()` cleanup via browser API mocks
@@ -132,9 +134,11 @@ guitartuner/
 ├── __tests__/
 │   ├── audioEngine.test.ts     # Browser API mocks, setup & dispose
 │   ├── bingSound.test.ts       # AudioContext mock, oscillator lifecycle
+│   ├── components.test.tsx     # React Component integration tests
 │   ├── noteUtils.test.ts       # Frequency/MIDI/cents math
-│   ├── pitchDetector.test.ts   # Sine wave fixtures, all strings
-│   └── tunings.test.ts         # Data integrity checks
+│   ├── pitchDetector.test.ts   # Sine wave fixtures, MPM octave-trap rejection
+│   ├── tunings.test.ts         # Data integrity checks
+│   └── usePitchDetection.test.tsx # Hook state transitions and mic mock
 ├── app/
 │   ├── layout.tsx              # Root layout & fonts
 │   └── page.tsx                # Main page
