@@ -1,0 +1,5 @@
+npm run test
+npm run test:coverage
+
+# Automatically stage the updated coverage badge if tests pass
+git add badges/coverage.svg
