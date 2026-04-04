@@ -87,19 +87,44 @@ export function detectPitch(
     // ── 4. Find the best peak ─────────────────────────────────────────────────
     // Skip the initial downward slope to find the first trough
     let d = minLag;
-    while (d < maxLag - 1 && correlation[d] > correlation[d + 1]) d++;
+    while (d < maxLag - 1 && correlation[d] >= correlation[d + 1]) d++;
 
-    let maxVal = -Infinity;
-    let maxPos = minLag;
+    // Find the absolute maximum correlation to establish a threshold
+    let absoluteMax = -Infinity;
     for (let i = d; i <= maxLag; i++) {
-        if (correlation[i] > maxVal) {
-            maxVal = correlation[i];
-            maxPos = i;
+        if (correlation[i] > absoluteMax) {
+            absoluteMax = correlation[i];
         }
     }
 
     // Discard weak / ambiguous detections
-    if (maxVal <= 0) return null;
+    if (absoluteMax <= 0) return null;
+
+    const threshold = 0.9 * absoluteMax;
+    let maxPos = minLag;
+    let found = false;
+
+    // Scan for the *first* prominent local maximum
+    for (let i = d + 1; i < maxLag; i++) {
+        if (correlation[i] > correlation[i - 1] && correlation[i] > correlation[i + 1]) {
+            if (correlation[i] >= threshold) {
+                maxPos = i;
+                found = true;
+                break;
+            }
+        }
+    }
+
+    // Fallback if the peak lies precisely at the boundary edges
+    // or if no strict local maximum breached the threshold
+    if (!found) {
+        for (let i = d; i <= maxLag; i++) {
+            if (correlation[i] === absoluteMax) {
+                maxPos = i;
+                break;
+            }
+        }
+    }
 
     // ── 5. Parabolic interpolation ────────────────────────────────────────────
     if (maxPos <= minLag || maxPos >= maxLag) {
