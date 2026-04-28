@@ -10,7 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage && mkdir -p badges && make-coverage-badge --output-path ./badges/coverage.svg",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@radix-ui/react-toggle-group": "^1.1.11",
