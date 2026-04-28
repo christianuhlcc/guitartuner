@@ -116,6 +116,33 @@ describe('detectPitch – octave octave-trap rejection', () => {
 
 // ─── Math boundaries ──────────────────────────────────────────────────────────
 
+// ─── YIN fallback path ───────────────────────────────────────────────────────
+// The fallback is reached when no lag in [minLag, maxLag] clears the primary
+// YIN_THRESHOLD (0.10).  It then returns the global-minimum lag if its CMNDF
+// is below YIN_FALLBACK_THRESHOLD (0.35), otherwise null.
+
+describe('detectPitch – YIN fallback path', () => {
+    it('returns null for a constant-DC signal (CMNDF = 1.0 everywhere)', () => {
+        // A flat buffer has d(τ)=0 for every τ → runningSum stays 0 →
+        // yinBuffer[τ] = 1.0 for all τ.  Primary search never finds a
+        // minimum < 0.10; global minimum (1.0) exceeds the fallback threshold.
+        const buf = new Float32Array(4096).fill(0.02); // rms = 0.02 > silence threshold
+        expect(detectPitch(buf, SAMPLE_RATE)).toBeNull();
+    });
+
+    it('returns a frequency when the best lag clears the fallback threshold', () => {
+        // 90 Hz sine searched in the [70, 80] Hz window (lags 551–630).
+        // The true period (490 samples) lies below minLag=551, so the primary
+        // search finds no CMNDF < 0.10.  However CMNDF at lag 551 ≈ 0.32,
+        // which is below YIN_FALLBACK_THRESHOLD (0.35), so the fallback
+        // returns sampleRate/551 ≈ 80 Hz rather than null.
+        const buf = sineWave(90, 8192);
+        const result = detectPitch(buf, SAMPLE_RATE, 70, 80);
+        expect(result).not.toBeNull();
+        expect(result!).toBeGreaterThan(0);
+    });
+});
+
 describe('detectPitch – edge cases', () => {
     it('returns null when minFrequency >= maxFrequency (impossible lag range)', () => {
         const buf = sineWave(440, 4096);

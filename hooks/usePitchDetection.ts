@@ -121,7 +121,7 @@ export function usePitchDetection(
     }));
 
     try {
-      const engine = await createAudioEngine({ fftSize: 4096 });
+      const engine = await createAudioEngine({ fftSize: 8192 });
       engineRef.current = engine;
       isActiveRef.current = true;
 
