@@ -1,3 +1,5 @@
+import { frequencyToMidi } from './noteUtils';
+
 /** Supported instrument types */
 export type InstrumentType = 'guitar' | 'bass';
 
@@ -33,8 +35,8 @@ export const STANDARD_TUNINGS: Record<InstrumentType, InstrumentTuning> = {
     guitar: {
         type: 'guitar',
         label: 'Guitar',
-        minFrequency: 70,
-        maxFrequency: 360,
+        minFrequency: 60,
+        maxFrequency: 500,
         strings: [
             { number: 6, note: 'E', octave: 2, frequency: 82.41 },
             { number: 5, note: 'A', octave: 2, frequency: 110.00 },
@@ -47,8 +49,8 @@ export const STANDARD_TUNINGS: Record<InstrumentType, InstrumentTuning> = {
     bass: {
         type: 'bass',
         label: 'Bass',
-        minFrequency: 35,
-        maxFrequency: 115,
+        minFrequency: 30,
+        maxFrequency: 250,
         strings: [
             { number: 4, note: 'E', octave: 1, frequency: 41.20 },
             { number: 3, note: 'A', octave: 1, frequency: 55.00 },
@@ -57,3 +59,11 @@ export const STANDARD_TUNINGS: Record<InstrumentType, InstrumentTuning> = {
         ],
     },
 };
+
+/**
+ * The open string of `tuning` whose note (name + octave) is the given MIDI
+ * note, or null when the note is not an open string.
+ */
+export function findOpenString(tuning: InstrumentTuning, midi: number): StringDefinition | null {
+    return tuning.strings.find((s) => frequencyToMidi(s.frequency) === midi) ?? null;
+}

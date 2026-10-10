@@ -1,4 +1,4 @@
-import { STANDARD_TUNINGS } from '@/lib/tunings';
+import { STANDARD_TUNINGS, findOpenString } from '@/lib/tunings';
 
 describe('STANDARD_TUNINGS – guitar', () => {
     const guitar = STANDARD_TUNINGS.guitar;
@@ -83,5 +83,26 @@ describe('STANDARD_TUNINGS – bass', () => {
 
     it('bass max frequency is lower than guitar max frequency', () => {
         expect(bass.maxFrequency).toBeLessThan(STANDARD_TUNINGS.guitar.maxFrequency);
+    });
+});
+
+describe('findOpenString', () => {
+    it('finds guitar E2 as string 6', () => {
+        expect(findOpenString(STANDARD_TUNINGS.guitar, 40)?.number).toBe(6);
+    });
+
+    it('returns null for F2', () => {
+        expect(findOpenString(STANDARD_TUNINGS.guitar, 41)).toBeNull();
+    });
+
+    it('finds bass E1 as string 4', () => {
+        expect(findOpenString(STANDARD_TUNINGS.bass, 28)?.number).toBe(4);
+    });
+});
+
+describe('detection ranges', () => {
+    it('guitar 60–500 Hz, bass 30–250 Hz', () => {
+        expect([STANDARD_TUNINGS.guitar.minFrequency, STANDARD_TUNINGS.guitar.maxFrequency]).toEqual([60, 500]);
+        expect([STANDARD_TUNINGS.bass.minFrequency, STANDARD_TUNINGS.bass.maxFrequency]).toEqual([30, 250]);
     });
 });
