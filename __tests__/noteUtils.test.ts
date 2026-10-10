@@ -3,6 +3,7 @@ import {
     midiToFrequency,
     midiToNoteName,
     midiToOctave,
+    midiToLabel,
     frequencyToCents,
     isInTune,
 } from '@/lib/noteUtils';
@@ -163,5 +164,13 @@ describe('isInTune', () => {
     it('handles flat notes symmetrically', () => {
         const slightlyFlat = 440 * Math.pow(2, -3 / 1200); // -3 cents
         expect(isInTune(slightlyFlat, 440)).toBe(true);
+    });
+});
+
+describe('midiToLabel', () => {
+    it('returns name and octave', () => {
+        expect(midiToLabel(61)).toEqual({ name: 'C#', octave: 4 });
+        expect(midiToLabel(40)).toEqual({ name: 'E', octave: 2 });
+        expect(midiToLabel(21)).toEqual({ name: 'A', octave: 0 });
     });
 });

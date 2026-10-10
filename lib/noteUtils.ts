@@ -35,6 +35,13 @@ export function midiToOctave(midi: number): number {
 }
 
 /**
+ * Note name and octave for a MIDI note number, e.g. 61 → { name: 'C#', octave: 4 }.
+ */
+export function midiToLabel(midi: number): { name: string; octave: number } {
+    return { name: midiToNoteName(midi), octave: midiToOctave(midi) };
+}
+
+/**
  * Calculate the deviation in cents between a detected and a target frequency.
  * Returns 0 when equal, positive when detected is sharp, negative when flat.
  * 100 cents = 1 semitone, 1200 cents = 1 octave.

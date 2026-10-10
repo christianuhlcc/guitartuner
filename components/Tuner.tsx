@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { STANDARD_TUNINGS, InstrumentType } from '@/lib/tunings';
+import { STANDARD_TUNINGS, InstrumentType, findOpenString } from '@/lib/tunings';
 import { usePitchDetection } from '@/hooks/usePitchDetection';
 import InstrumentSelector from './InstrumentSelector';
-import StringSelector from './StringSelector';
 import TunerMeter from './TunerMeter';
 import NoteDisplay from './NoteDisplay';
 import { Mic, MicOff, AlertCircle } from 'lucide-react';
@@ -17,18 +16,18 @@ function cn(...inputs: ClassValue[]) {
 
 export default function Tuner() {
     const [instrument, setInstrument] = useState<InstrumentType>('guitar');
-    const [stringIndex, setStringIndex] = useState(0);
 
     const tuning = useMemo(() => STANDARD_TUNINGS[instrument], [instrument]);
-    const targetString = tuning.strings[stringIndex];
 
-    const { frequency, cents, isInTune, micStatus, errorMessage, toggle } =
-        usePitchDetection(targetString, tuning);
+    const {
+        frequency, midi, noteName, octave, cents, isInTune, isStale,
+        micStatus, errorMessage, toggle,
+    } = usePitchDetection(tuning);
 
-    const handleInstrumentChange = (type: InstrumentType) => {
-        setInstrument(type);
-        setStringIndex(0); // reset to lowest string
-    };
+    const openString = useMemo(
+        () => (midi !== null ? findOpenString(tuning, midi) : null),
+        [tuning, midi],
+    );
 
     const isListening = micStatus === 'active';
     const isRequesting = micStatus === 'requesting';
@@ -47,14 +46,7 @@ export default function Tuner() {
             <div className="w-full max-w-sm flex flex-col items-center gap-6 mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
                 <InstrumentSelector
                     selected={instrument}
-                    onChange={handleInstrumentChange}
-                />
-                
-                <StringSelector
-                    instrument={instrument}
-                    strings={tuning.strings}
-                    selectedIndex={stringIndex}
-                    onSelect={setStringIndex}
+                    onChange={setInstrument}
                 />
             </div>
 
@@ -71,16 +63,20 @@ export default function Tuner() {
                         cents={cents}
                         isActive={isListening}
                         isInTune={isInTune}
+                        isStale={isStale}
                     />
                 </div>
 
                 <div className="mt-8">
                     <NoteDisplay
+                        noteName={noteName}
+                        octave={octave}
                         frequency={frequency}
                         cents={cents}
-                        targetString={targetString}
                         isInTune={isInTune}
                         isActive={isListening}
+                        isStale={isStale}
+                        openString={openString}
                     />
                 </div>
             </div>
@@ -100,12 +96,10 @@ export default function Tuner() {
 
             {/* Action Bar */}
             <footer className="w-full max-w-xs flex flex-col items-center gap-4">
-                {/* Target Metadata Bubble */}
+                {/* Reference pitch */}
                 <div className="px-4 py-1.5 rounded-full bg-surface-muted border border-white/5 shadow-inner">
                     <p className="font-mono text-[10px] text-muted tracking-wider uppercase">
-                        Target: <span className="text-surface-foreground/80">{targetString.note}{targetString.octave}</span>
-                        <span className="mx-2 opacity-30">|</span>
-                        <span className="text-surface-foreground/80">{targetString.frequency.toFixed(2)} Hz</span>
+                        <span className="text-surface-foreground/80">A4 = 440 Hz</span>
                     </p>
                 </div>
 
