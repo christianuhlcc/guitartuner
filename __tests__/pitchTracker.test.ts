@@ -199,3 +199,33 @@ describe('PitchTracker.reset', () => {
         expect(h.step([cand(A2)]).midi).toBe(45);
     });
 });
+
+describe('PitchTracker sticky note', () => {
+    const G3 = 196;
+    const F3 = G3 * Math.pow(2, -200 / 1200);
+
+    it('does not jump to a nearby note on a brief re-pluck misreading', () => {
+        const h = harness();
+        h.run(20, [cand(G3)], 0.01);
+        h.step([cand(F3, 0.95)], 0.2); // onset
+        const out = h.run(4, [cand(F3, 0.95)], 0.2);
+        expect(out.midi).toBe(55);
+        const back = h.run(10, [cand(G3)], 0.2);
+        expect(back.midi).toBe(55);
+    });
+
+    it('does not jump while the tracked pitch still has support', () => {
+        const h = harness();
+        h.run(20, [cand(G3)]);
+        const out = h.run(30, [cand(G3, 0.85), cand(F3, 0.95)]);
+        expect(out.midi).toBe(55);
+    });
+
+    it('still re-locks to a persistent nearby note', () => {
+        const h = harness();
+        h.run(20, [cand(G3)], 0.01);
+        h.step([cand(F3)], 0.2);
+        const out = h.run(8, [cand(F3)], 0.2);
+        expect(out.midi).toBe(53);
+    });
+});

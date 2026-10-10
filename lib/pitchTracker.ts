@@ -18,6 +18,8 @@ export interface TrackerOptions {
     pendingMaxAgeSec: number;// acquisition evidence older than this is discarded
     relockMinClarity: number;// each re-lock frame needs at least this clarity
     jumpCents: number;       // "different note" threshold
+    nearJumpCents: number;   // jumps up to this far are suspicious (tuning drift / transient), not a new string
+    nearConfirmFrames: number;// agreeing frames needed to accept such a near jump
     onsetDb: number;         // short-window energy rise that counts as a pluck
     onsetMinRms: number;     // ignore onsets below this level
     noteHysteresisCents: number;
@@ -30,6 +32,7 @@ export const DEFAULT_TRACKER_OPTIONS: TrackerOptions = {
     medianSize: 5, medianMaxAgeSec: 0.4, holdMs: 500, staleAfterMs: 150,
     minCutoffHz: 0.8, beta: 0.03, derivCutoffHz: 1.0,
     confirmFrames: 3, agreeCents: 35, pendingMaxAgeSec: 0.2, relockMinClarity: 0.8, jumpCents: 80,
+    nearJumpCents: 250, nearConfirmFrames: 7,
     onsetDb: 6, onsetMinRms: 0.003,
     noteHysteresisCents: 60, inTuneEnterCents: 4, inTuneExitCents: 7,
 };
@@ -107,10 +110,15 @@ export class PitchTracker {
             if (mpm && Math.abs(toAbsCents(mpm.frequency) - this.x) > o.jumpCents) {
                 this.pending.push({ t, c: toAbsCents(mpm.frequency), q: mpm.clarity });
                 const agreed = this.agreed();
-                const confident = this.pending.slice(-o.confirmFrames).every((p) => p.q >= o.relockMinClarity);
-                if (agreed !== null && confident && (!best || Math.abs(agreed - this.x) > o.jumpCents)) {
-                    this.lockTo(agreed, t);
-                    best = null;
+                if (agreed !== null && this.confident(this.o.confirmFrames) && (!best || Math.abs(agreed - this.x) > o.jumpCents)) {
+                    // Sticky note: a nearby note (a semitone or two away) must persist longer,
+                    // and only wins once the tracked pitch itself has no support any more.
+                    const near = Math.abs(agreed - this.x) <= o.nearJumpCents;
+                    const agreedNear = near ? this.agreed(o.nearConfirmFrames) : agreed;
+                    if (agreedNear !== null && (!near || (!best && this.confident(o.nearConfirmFrames)))) {
+                        this.lockTo(agreedNear, t);
+                        best = null;
+                    }
                 }
             } else {
                 this.pending = [];
@@ -119,7 +127,13 @@ export class PitchTracker {
         } else if (mpm) {
             // 2. Acquire
             this.pending.push({ t, c: toAbsCents(mpm.frequency), q: mpm.clarity });
-            const agreed = this.agreed();
+            let agreed = this.agreed();
+            if (agreed !== null && this.x !== null && Math.abs(agreed - this.x) <= o.nearJumpCents
+                && Math.abs(agreed - this.x) > o.jumpCents) {
+                // Re-pluck transients often read a semitone or two off: keep the displayed note
+                // until the new reading has persisted.
+                agreed = this.agreed(o.nearConfirmFrames);
+            }
             if (agreed !== null) this.lockTo(agreed, t);
         }
 
@@ -163,11 +177,15 @@ export class PitchTracker {
         };
     }
 
-    private agreed(): number | null {
+    private confident(n: number): boolean {
+        return this.pending.slice(-n).every((p) => p.q >= this.o.relockMinClarity);
+    }
+
+    private agreed(n: number = this.o.confirmFrames): number | null {
         const now = this.pending.length ? this.pending[this.pending.length - 1].t : 0;
         this.pending = this.pending.filter((p) => now - p.t <= this.o.pendingMaxAgeSec);
-        const recent = this.pending.slice(-this.o.confirmFrames);
-        if (recent.length < this.o.confirmFrames) return null;
+        const recent = this.pending.slice(-n);
+        if (recent.length < n) return null;
         const cs = recent.map((p) => p.c);
         return Math.max(...cs) - Math.min(...cs) <= this.o.agreeCents ? median(cs) : null;
     }
