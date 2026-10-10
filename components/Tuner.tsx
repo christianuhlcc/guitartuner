@@ -53,10 +53,17 @@ export default function Tuner() {
             {/* Visual Analyzer Section */}
             <div className="relative w-full max-w-[340px] aspect-square flex flex-col items-center justify-center animate-in zoom-in-95 duration-1000 delay-300">
                 {/* Background glow when in tune */}
-                <div className={cn(
-                    "absolute inset-0 rounded-full blur-[60px] transition-all duration-700 opacity-20",
-                    isListening && isInTune ? "bg-accent scale-110" : "bg-surface scale-90"
-                )} />
+                {/* Radial gradient instead of CSS blur: blur filters get clipped to a rectangle by their layer bounds */}
+                <div
+                    className={cn(
+                        "absolute -inset-[15%] rounded-full pointer-events-none transition-opacity duration-700",
+                        isListening && isInTune ? "opacity-30" : "opacity-0"
+                    )}
+                    style={{
+                        background:
+                            'radial-gradient(circle closest-side, rgba(16,185,129,0.9) 0%, rgba(16,185,129,0.4) 45%, rgba(16,185,129,0) 100%)',
+                    }}
+                />
 
                 <div className="relative w-full">
                     <TunerMeter

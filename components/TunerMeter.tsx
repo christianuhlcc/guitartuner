@@ -105,7 +105,7 @@ export default function TunerMeter({ cents, isActive, isInTune, isStale = false 
         >
             <defs>
                 {/* Glow filter for in-tune state */}
-                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <filter id="glow" filterUnits="userSpaceOnUse" x={CX - 40} y={CY - 40} width={80} height={80}>
                     <feGaussianBlur stdDeviation="3" result="blur" />
                     <feMerge>
                         <feMergeNode in="blur" />
@@ -113,7 +113,7 @@ export default function TunerMeter({ cents, isActive, isInTune, isStale = false 
                     </feMerge>
                 </filter>
                 {/* Subtle glow for needle */}
-                <filter id="needle-glow" x="-100%" y="-100%" width="300%" height="300%">
+                <filter id="needle-glow" filterUnits="userSpaceOnUse" x={CX - 40} y={CY - NEEDLE_LEN - 40} width={80} height={NEEDLE_LEN + 90}>
                     <feGaussianBlur stdDeviation="2.5" result="blur" />
                     <feMerge>
                         <feMergeNode in="blur" />
