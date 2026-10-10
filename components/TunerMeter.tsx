@@ -86,12 +86,15 @@ interface TunerMeterProps {
     cents: number | null;
     isActive: boolean;
     isInTune: boolean;
+    /** Holding the last value through a short dropout: needle is dimmed. */
+    isStale?: boolean;
 }
 
-export default function TunerMeter({ cents, isActive, isInTune }: TunerMeterProps) {
+export default function TunerMeter({ cents, isActive, isInTune, isStale = false }: TunerMeterProps) {
     const rotation = centsToRotation(cents ?? 0);
     const color = needleColor(cents, isInTune);
     const hasSignal = isActive && cents !== null;
+    const needleOpacity = !hasSignal ? 0.3 : isStale ? 0.5 : 1;
 
     return (
         <svg
@@ -211,7 +214,7 @@ export default function TunerMeter({ cents, isActive, isInTune }: TunerMeterProp
             {/* ── Needle (rotates around pivot) ───────────────────────────── */}
             <g
                 transform={`rotate(${rotation}, ${CX}, ${CY})`}
-                style={{ transition: 'transform 0.08s ease-out' }}
+                style={{ transition: 'transform 100ms linear' }}
                 filter={isInTune ? 'url(#needle-glow)' : undefined}
             >
                 {/* Needle line */}
@@ -223,14 +226,14 @@ export default function TunerMeter({ cents, isActive, isInTune }: TunerMeterProp
                     stroke={color}
                     strokeWidth={hasSignal ? 2.5 : 1.5}
                     strokeLinecap="round"
-                    opacity={hasSignal ? 1 : 0.3}
+                    opacity={needleOpacity}
                     style={{ transition: 'stroke 0.15s, opacity 0.2s' }}
                 />
                 {/* Needle tip diamond */}
                 <polygon
                     points={`${CX},${CY - NEEDLE_LEN - 6} ${CX - 3},${CY - NEEDLE_LEN + 4} ${CX + 3},${CY - NEEDLE_LEN + 4}`}
                     fill={color}
-                    opacity={hasSignal ? 1 : 0.3}
+                    opacity={needleOpacity}
                     style={{ transition: 'fill 0.15s, opacity 0.2s' }}
                 />
             </g>
