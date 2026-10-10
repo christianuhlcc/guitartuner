@@ -1,115 +1,89 @@
-/**
- * Minimum RMS level below which the signal is considered silence.
- */
-const SILENCE_RMS_THRESHOLD = 0.01;
+import { autocorrelation } from './fft';
+
+export interface PitchCandidate {
+    /** Frequency in Hz (sub-sample refined). */
+    frequency: number;
+    /** NSDF peak height, 0..1. ≥0.9 clean tone, 0.5–0.8 noisy/polyphonic, <0.3 noise. */
+    clarity: number;
+}
+
+/** Signal RMS. */
+export function rms(buf: Float32Array, from = 0, to = buf.length): number {
+    let s = 0;
+    for (let i = from; i < to; i++) s += buf[i] * buf[i];
+    return Math.sqrt(s / Math.max(1, to - from));
+}
+
+/** Below this RMS the buffer is treated as silence (clarity does the real gating). */
+export const SILENCE_RMS = 0.002;
 
 /**
- * YIN CMNDF threshold: d'(τ) below this value is accepted as a strong pitch
- * match. 0.10 means >90% of the signal energy is periodic at that lag.
+ * All NSDF key maxima with period in [1/maxF, 1/minF], in ASCENDING LAG order
+ * (i.e. descending frequency). A key maximum is the highest NSDF value between
+ * a positive-going zero crossing and the next negative-going one.
  */
-const YIN_THRESHOLD = 0.10;
-
-/**
- * Fallback confidence limit. When no lag clears YIN_THRESHOLD we still return
- * the global minimum if it is below this value, otherwise null.
- */
-const YIN_FALLBACK_THRESHOLD = 0.35;
-
-/**
- * Detect the fundamental frequency of a monophonic audio signal using the
- * YIN algorithm (Cheveigné & Kawahara, 2002).
- *
- * Algorithm outline:
- *  1. Reject silence by checking RMS level.
- *  2. Compute the difference function d(τ) over [1, maxLag].
- *  3. Compute the Cumulative Mean Normalised Difference Function (CMNDF)
- *     d'(τ) = d(τ) · τ / Σ_{j=1}^{τ} d(j), with d'(0) = 1.
- *     Normalisation prevents the trivial τ=0 solution from dominating and
- *     naturally discourages the algorithm from picking a subharmonic lag.
- *  4. Find the first local minimum of d' below YIN_THRESHOLD in [minLag, maxLag].
- *     Fall back to the global minimum when no confident minimum is found.
- *  5. Refine with parabolic interpolation for sub-sample accuracy.
- *
- * Compared to plain autocorrelation this eliminates the octave-error trap that
- * makes lower strings unreliable, because the CMNDF penalises longer lags even
- * when their raw correlation is high.
- *
- * @param buffer        Float32Array from AnalyserNode.getFloatTimeDomainData
- * @param sampleRate    AudioContext sample rate (e.g. 44100)
- * @param minFrequency  Lowest frequency to search for in Hz (default 30)
- * @param maxFrequency  Highest frequency to search for in Hz (default 400)
- * @returns             Detected frequency in Hz, or null if signal is too
- *                      quiet or no clear pitch was found.
- */
-export function detectPitch(
-    buffer: Float32Array,
-    sampleRate: number,
-    minFrequency = 30,
-    maxFrequency = 400,
-): number | null {
-    const size = buffer.length;
-    const halfSize = Math.floor(size / 2);
-
-    // ── 1. Silence check ─────────────────────────────────────────────────────
-    let rmsSum = 0;
-    for (let i = 0; i < size; i++) rmsSum += buffer[i] * buffer[i];
-    if (Math.sqrt(rmsSum / size) < SILENCE_RMS_THRESHOLD) return null;
-
-    // ── Lag bounds ───────────────────────────────────────────────────────────
+export function detectPitchCandidates(
+    buf: Float32Array, sampleRate: number, minFrequency: number, maxFrequency: number,
+): PitchCandidate[] {
+    const N = buf.length;
+    if (rms(buf) < SILENCE_RMS) return [];
     const minLag = Math.max(2, Math.floor(sampleRate / maxFrequency));
-    const maxLag = Math.min(Math.ceil(sampleRate / minFrequency), halfSize - 1);
-    if (maxLag <= minLag) return null;
+    const maxLag = Math.min(Math.ceil(sampleRate / minFrequency) + 1, N - 2);
+    if (maxLag <= minLag) return [];
 
-    // ── 2 & 3. Difference function + CMNDF in one pass ───────────────────────
-    // d(τ)  = Σ_{j=0}^{halfSize-1} (x_j − x_{j+τ})²
-    // d'(τ) = d(τ) · τ / Σ_{j=1}^{τ} d(j)   (CMNDF)
-    const yinBuffer = new Float32Array(maxLag + 1);
-    let runningSum = 0;
-    for (let tau = 1; tau <= maxLag; tau++) {
-        let delta = 0;
-        for (let j = 0; j < halfSize; j++) {
-            const diff = buffer[j] - buffer[j + tau];
-            delta += diff * diff;
-        }
-        runningSum += delta;
-        yinBuffer[tau] = runningSum > 0 ? (delta * tau) / runningSum : 1.0;
+    const r = autocorrelation(buf, maxLag + 1);
+    const nsdf = new Float64Array(maxLag + 2);
+    let m = 2 * r[0];
+    for (let tau = 0; tau <= maxLag + 1; tau++) {
+        if (tau > 0) m -= buf[tau - 1] * buf[tau - 1] + buf[N - tau] * buf[N - tau];
+        nsdf[tau] = m > 0 ? (2 * r[tau]) / m : 0;
     }
 
-    // ── 4. Find the first local minimum below the threshold ──────────────────
-    let tau = minLag;
-    while (tau <= maxLag) {
-        if (yinBuffer[tau] < YIN_THRESHOLD) {
-            // Slide to the valley bottom
-            while (tau + 1 <= maxLag && yinBuffer[tau + 1] < yinBuffer[tau]) tau++;
-            break;
+    const out: PitchCandidate[] = [];
+    let t = 1;
+    while (t < maxLag && nsdf[t] > 0) t++;          // skip the lobe around τ = 0
+    while (t <= maxLag) {
+        while (t <= maxLag && nsdf[t] <= 0) t++;
+        let best = -1;
+        while (t <= maxLag && nsdf[t] > 0) {
+            if (best < 0 || nsdf[t] > nsdf[best]) best = t;
+            t++;
         }
-        tau++;
-    }
-
-    // Fallback: use the global minimum when no confident detection found
-    if (tau > maxLag) {
-        let minVal = Infinity;
-        let minPos = minLag;
-        for (let i = minLag; i <= maxLag; i++) {
-            if (yinBuffer[i] < minVal) {
-                minVal = yinBuffer[i];
-                minPos = i;
+        if (best >= minLag && best <= maxLag) {
+            // Parabolic interpolation of the peak (abscissa → period, ordinate → clarity)
+            const y1 = nsdf[best - 1], y2 = nsdf[best], y3 = nsdf[best + 1];
+            const den = y1 + y3 - 2 * y2;
+            let lag = best, clarity = y2;
+            if (den < 0) {
+                const delta = (y1 - y3) / (2 * den);
+                lag = best + delta;
+                clarity = y2 - ((y1 - y3) * delta) / 4;
             }
+            out.push({ frequency: sampleRate / lag, clarity: Math.min(1, clarity) });
         }
-        if (minVal > YIN_FALLBACK_THRESHOLD) return null;
-        tau = minPos;
     }
+    return out;
+}
 
-    // ── 5. Parabolic interpolation ────────────────────────────────────────────
-    if (tau > minLag && tau < maxLag) {
-        const y1 = yinBuffer[tau - 1];
-        const y2 = yinBuffer[tau];
-        const y3 = yinBuffer[tau + 1];
-        const a = (y1 + y3 - 2 * y2) / 2;
-        const b = (y3 - y1) / 2;
-        const refined = a !== 0 ? tau - b / (2 * a) : tau;
-        return sampleRate / refined;
-    }
+/**
+ * MPM's own selection rule: the first (shortest-lag) candidate whose clarity is
+ * ≥ k × the best clarity. k = 0.8 (not the textbook 0.9): with 0.9, a high E
+ * plucked while B3 still rings is shown as E2 >50% of the time (their common
+ * period is E2's); 0.8 brings that to <10% without adding overtone errors.
+ */
+export function pickMpm(cands: PitchCandidate[], k = 0.8, minClarity = 0.5): PitchCandidate | null {
+    let hi = 0;
+    for (const c of cands) if (c.clarity >= minClarity && c.clarity > hi) hi = c.clarity;
+    if (hi === 0) return null;
+    return cands.find((c) => c.clarity >= minClarity && c.clarity >= k * hi) ?? null;
+}
 
-    return sampleRate / tau;
+/** Convenience wrapper: the MPM-picked frequency, or null when nothing is clear. */
+export function detectPitch(
+    buf: Float32Array,
+    sampleRate: number,
+    minFrequency = 60,
+    maxFrequency = 500,
+): number | null {
+    return pickMpm(detectPitchCandidates(buf, sampleRate, minFrequency, maxFrequency))?.frequency ?? null;
 }
